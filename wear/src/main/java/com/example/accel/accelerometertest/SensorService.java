@@ -12,6 +12,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by aawesh on 5/16/17.
  */
@@ -21,10 +25,17 @@ public class SensorService extends Service implements SensorEventListener {
     private TextView mTextView;
     private static final String TAG = "AccelerometerTest";
 
-    private final static int c_accelerometer = Sensor.TYPE_ACCELEROMETER;
+    private final static int ACCELEROMETER = Sensor.TYPE_ACCELEROMETER;
+    private final static int SENS_HEARTRATE = Sensor.TYPE_HEART_RATE;
+
 
     SensorManager mSensorManager;
     private Client client;
+
+    private Sensor heartrateSensor;
+
+    private ScheduledExecutorService mScheduler;
+
 
     @Override
     public void onCreate() {
@@ -58,12 +69,40 @@ public class SensorService extends Service implements SensorEventListener {
 
     private void startMeasurement() {
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Sensor accelerometerSensor = mSensorManager.getDefaultSensor(c_accelerometer);
+        Sensor accelerometerSensor = mSensorManager.getDefaultSensor(ACCELEROMETER);
 
         if(accelerometerSensor != null){
             mSensorManager.registerListener(this,accelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
         }else{
             Log.w(TAG,"Accelerometer not found");
+        }
+
+        if (heartrateSensor != null) {
+            final int measurementDuration   = 30;   // Seconds
+            final int measurementBreak      = 15;    // Seconds
+
+            mScheduler = Executors.newScheduledThreadPool(1);
+            mScheduler.scheduleAtFixedRate(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "register Heartrate Sensor");
+                            mSensorManager.registerListener(SensorService.this, heartrateSensor, SensorManager.SENSOR_DELAY_FASTEST);
+
+                            //wait for 30 seconds before unregistering the heartrate sensor
+                            try {
+                                Thread.sleep(measurementDuration * 1000);
+                            } catch (InterruptedException e) {
+                                Log.e(TAG, "Interrupted while waitting to unregister Heartrate Sensor");
+                            }
+
+                            Log.d(TAG, "unregister Heartrate Sensor");
+                            mSensorManager.unregisterListener(SensorService.this, heartrateSensor);
+                        }
+                    }, 3, measurementDuration + measurementBreak, TimeUnit.SECONDS);
+
+        } else {
+            Log.d(TAG, "No Heartrate Sensor found");
         }
     }
 
