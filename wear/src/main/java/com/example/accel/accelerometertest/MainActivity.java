@@ -1,7 +1,9 @@
 package com.example.accel.accelerometertest;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
@@ -18,6 +20,7 @@ public class MainActivity extends Activity {
     private final static String TAG = "WearMainActivity";
     private Intent serviceIntent;
 
+    private static final int MY_PERMISSIONS_REQUEST_BODY_SENSORS = 001;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +34,14 @@ public class MainActivity extends Activity {
         });
 
         Log.d(TAG,"Activity created");
+
+
+        if (checkSelfPermission(Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.BODY_SENSORS},
+                    MY_PERMISSIONS_REQUEST_BODY_SENSORS);
+
+            return;
+        }
 
         serviceIntent = new Intent(this, MessageReceiverService.class);
         this.startService(serviceIntent);

@@ -3,6 +3,8 @@
     package="com.example.accel.accelerometertest">
 
     <uses-feature android:name="android.hardware.type.watch" />
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+
 
     <application
         android:allowBackup="true"
