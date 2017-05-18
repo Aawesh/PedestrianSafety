@@ -45,10 +45,7 @@ public class SensorDataReceiverService extends WearableListenerService {
         long timestamp = dataMap.getLong("timestamp");
         float[] values = dataMap.getFloatArray("values");
 
-        Log.d(TAG, "SensorType = " + sensorType + " Accuracy = " + accuracy + "t imestamp = " + timestamp + "v alues = " + Arrays.toString(values));
-        //Log.d(TAG, "Accuracy = " + accuracy);
-        //Log.d(TAG, "timestamp = " + timestamp);
-        //Log.d(TAG, "values = " + Arrays.toString(values));
+        Log.d(TAG, "SensorType = " + sensorType + " Accuracy = " + accuracy + " timestamp = " + timestamp + " values = " + Arrays.toString(values));
 
         //TODO save those sensor data values and do some further processing
     }
